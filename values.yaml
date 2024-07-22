@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 4
+replicaCount: 2
 
 image:
   repository: docker.io/bankttstth/demo-spring
@@ -49,7 +49,7 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: api.sandbox-m3.1530.p1.openshiftapps.com
+    - host: 172.30.95.61
       paths:
         - path: /
           pathType: ImplementationSpecific
