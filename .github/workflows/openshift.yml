@@ -31,8 +31,8 @@ jobs:
         oc login $OPENSHIFT_SERVER --token=$OPENSHIFT_TOKEN --insecure-skip-tls-verify
 
     - name: Generate Kubernetes Manifests with Helm
-      run: |
-        helm template demopipeline . --set image.repository=${{ secrets.REGISTRY_SERVER }}/${{ github.repository_owner }}/demo-spring,image.tag=latest > my-release-manifests2.yaml
+
+        helm template demopipeline . --set image.repository=${{ secrets.REGISTRY_SERVER }}/bankttstth/demo-spring,image.tag=latest > my-release-manifests2.yaml
 
     - name: Apply Kubernetes Manifests to OpenShift
       run: |
