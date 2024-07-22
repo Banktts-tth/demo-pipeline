@@ -30,6 +30,13 @@ jobs:
       run: |
         oc login $OPENSHIFT_SERVER --token=$OPENSHIFT_TOKEN --insecure-skip-tls-verify
 
+    - name: Cleanup Existing Resources
+      run: |
+        oc delete deployment demopipeline-demo-pipeline --ignore-not-found
+        oc delete service demopipeline-demo-pipeline --ignore-not-found
+        oc delete ingress demopipeline-demo-pipeline --ignore-not-found
+        oc delete serviceaccount demopipeline-demo-pipeline --ignore-not-found
+
     - name: Generate Kubernetes Manifests with Helm
       run: |
         helm template demopipeline . --set image.repository=docker.io/bankttstth/demo-spring,image.tag=latest > my-release-manifests2.yaml
