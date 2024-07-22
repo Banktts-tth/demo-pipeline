@@ -1,0 +1,130 @@
+---
+# Source: demo-pipeline/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: demopipeline-demo-pipeline
+  labels:
+    helm.sh/chart: demo-pipeline-0.1.0
+    app.kubernetes.io/name: demo-pipeline
+    app.kubernetes.io/instance: demopipeline
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: demo-pipeline/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: demopipeline-demo-pipeline
+  labels:
+    helm.sh/chart: demo-pipeline-0.1.0
+    app.kubernetes.io/name: demo-pipeline
+    app.kubernetes.io/instance: demopipeline
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: demo-pipeline
+    app.kubernetes.io/instance: demopipeline
+---
+# Source: demo-pipeline/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demopipeline-demo-pipeline
+  labels:
+    helm.sh/chart: demo-pipeline-0.1.0
+    app.kubernetes.io/name: demo-pipeline
+    app.kubernetes.io/instance: demopipeline
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: demo-pipeline
+      app.kubernetes.io/instance: demopipeline
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: demo-pipeline
+        app.kubernetes.io/instance: demopipeline
+    spec:
+      serviceAccountName: demopipeline-demo-pipeline
+      securityContext:
+        {}
+      containers:
+        - name: demo-pipeline
+          securityContext:
+            {}
+          image: "docker.io/bankttstth/demo-spring:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/hello
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/hello
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          resources:
+            {}
+---
+# Source: demo-pipeline/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demopipeline-demo-pipeline
+  labels:
+    helm.sh/chart: demo-pipeline-0.1.0
+    app.kubernetes.io/name: demo-pipeline
+    app.kubernetes.io/instance: demopipeline
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+    - host: "localhots"
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: demopipeline-demo-pipeline
+                port:
+                  number: 8080
+---
+# Source: demo-pipeline/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "demopipeline-demo-pipeline-test-connection"
+  labels:
+    helm.sh/chart: demo-pipeline-0.1.0
+    app.kubernetes.io/name: demo-pipeline
+    app.kubernetes.io/instance: demopipeline
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['demopipeline-demo-pipeline:8080']
+  restartPolicy: Never
