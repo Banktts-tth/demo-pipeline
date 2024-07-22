@@ -64,6 +64,7 @@ spec:
           securityContext:
             {}
           image: "docker.io/bankttstth/demo-spring:latest"
+          arch: amd64
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -97,7 +98,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
 spec:
   rules:
-    - host: "https://api.sandbox-m3.1530.p1.openshiftapps.com"
+    - host: "api.sandbox-m3.1530.p1.openshiftapps.com"
       http:
         paths:
           - path: /
