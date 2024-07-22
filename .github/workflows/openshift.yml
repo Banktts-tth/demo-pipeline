@@ -1,0 +1,43 @@
+name: Deploy to OpenShift
+
+on:
+  push:
+    branches:
+      - main  # Adjust this to the branch you want to deploy from
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up OpenShift CLI
+      run: |
+        curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+        tar xvzf openshift-client-linux.tar.gz
+        sudo mv oc /usr/local/bin
+
+    - name: Set up Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+    - name: Log in to OpenShift
+      env:
+        OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+        OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+      run: |
+        oc login $OPENSHIFT_SERVER --token=$OPENSHIFT_TOKEN --insecure-skip-tls-verify
+
+    - name: Generate Kubernetes Manifests with Helm
+      run: |
+        helm template demopipeline . --set image.repository=${{ secrets.REGISTRY_SERVER }}/${{ github.repository_owner }}/demo-spring,image.tag=latest > my-release-manifests.yaml
+
+    - name: Apply Kubernetes Manifests to OpenShift
+      run: |
+        oc apply -f my-release-manifests.yaml
+
+    - name: Check Rollout Status
+      run: |
+        oc rollout status deployment/demopipeline-demo-pipeline
