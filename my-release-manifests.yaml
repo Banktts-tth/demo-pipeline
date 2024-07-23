@@ -11,6 +11,16 @@ metadata:
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/managed-by: Helm
 ---
+# Source: demo-pipeline/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demopipeline-config
+data:
+  application.properties: |
+    app.name=DemoApp
+    app.version=1.0.0
+---
 # Source: demo-pipeline/templates/service.yaml
 apiVersion: v1
 kind: Service
@@ -45,7 +55,7 @@ metadata:
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/managed-by: Helm
 spec:
-  replicas: 4
+  replicas: 10
   selector:
     matchLabels:
       app.kubernetes.io/name: demo-pipeline
@@ -70,6 +80,20 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config
+          env:
+            - name: APP_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: demopipeline-config
+                  key: app.name
+            - name: APP_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: demopipeline-config
+                  key: app.version
           livenessProbe:
             httpGet:
               path: /api/hello
@@ -84,6 +108,10 @@ spec:
             periodSeconds: 10
           resources:
             {}
+    volumes:
+        - name: config-volume
+          configMap:
+            name: demopipeline-config
 ---
 # Source: demo-pipeline/templates/ingress.yaml
 apiVersion: networking.k8s.io/v1
@@ -98,7 +126,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
 spec:
   rules:
-    - host: "api.sandbox-m3.1530.p1.openshiftapps.com"
+    - host: "demopipeline-demo-pipeline.banktth-dev.svc.cluster.local"
       http:
         paths:
           - path: /
@@ -126,6 +154,6 @@ spec:
   containers:
     - name: wget
       image: busybox
-      command: ['wget']
-      args: ['demopipeline-demo-pipeline:8080']
+      command: ['sh', '-c']
+      args: ['sleep 120; wget -qO- --timeout=5 --tries=1 http://demopipeline-demo-pipeline:8080/api/hello || exit 1']
   restartPolicy: Never

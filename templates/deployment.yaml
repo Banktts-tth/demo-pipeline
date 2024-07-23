@@ -38,6 +38,20 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config
+          env:
+            - name: APP_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: app.name
+            - name: APP_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: app.version
           livenessProbe:
             httpGet:
               path: {{ .Values.service.path }}
@@ -65,3 +79,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+    volumes:
+        - name: config-volume
+          configMap:
+            name: {{ .Release.Name }}-config
