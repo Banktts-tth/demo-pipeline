@@ -38,19 +38,8 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           volumeMounts:
-            - name: my-config
+            - name: config-volume
               mountPath: /config
-          env:
-            - name: APP_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Release.Name }}-config
-                  key: app.name
-            - name: APP_VERSION
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Release.Name }}-config
-                  key: app.version
           livenessProbe:
             httpGet:
               path: {{ .Values.service.path }}
