@@ -38,7 +38,7 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           volumeMounts:
-            - name: config-volume
+            - name: my-config
               mountPath: /config
           livenessProbe:
             httpGet:
