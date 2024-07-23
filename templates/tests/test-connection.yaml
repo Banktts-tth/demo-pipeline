@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['sh', '-c']
-      args: ['sleep 120; wget -qO- --timeout=5 --tries=1 {{ include "demo_pipeline.fullname" . }}:{{ .Values.service.port }} || exit 1']
+      args: ['sleep 120; wget -qO- --timeout=5 --tries=1 http://{{ include "demo_pipeline.fullname" . }}:{{ .Values.service.port }}/api/hello || exit 1']
   restartPolicy: Never
