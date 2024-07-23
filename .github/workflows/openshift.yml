@@ -37,6 +37,7 @@ jobs:
         oc delete service demopipeline-demo-pipeline --ignore-not-found
         oc delete ingress demopipeline-demo-pipeline --ignore-not-found
         oc delete serviceaccount demopipeline-demo-pipeline --ignore-not-found
+        oc delete pod demopipeline-demo-pipeline-test-connection --ignore-not-found
 
     - name: Generate Kubernetes Manifests with Helm
       run: |
