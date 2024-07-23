@@ -10,6 +10,6 @@ spec:
   containers:
     - name: wget
       image: busybox
-      command: ['wget']
+      command: ['wget -qO- --timeout=5 --tries=1']
       args: ['{{ include "demo_pipeline.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never
