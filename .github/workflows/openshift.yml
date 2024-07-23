@@ -33,6 +33,7 @@ jobs:
 
     - name: Cleanup Existing Resources
       run: |
+        oc delete pod -l app.kubernetes.io/name=demo-pipeline --ignore-not-found
         oc delete deployment demopipeline-demo-pipeline --ignore-not-found
         oc delete service demopipeline-demo-pipeline --ignore-not-found
         oc delete ingress demopipeline-demo-pipeline --ignore-not-found
