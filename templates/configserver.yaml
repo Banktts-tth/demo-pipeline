@@ -8,7 +8,7 @@ metadata:
     app: {{ .Release.Name }}-configserver
 data:
   application.yml: |
-    {{ (.Files.Get .Values.configserver.configFiles.applicationDefault) | indent 4 }}
+    {{ (.Files.Get .Values.configserver.configFiles.application) | indent 4 }}
   application-dev.yml: |
     {{ (.Files.Get .Values.configserver.configFiles.applicationDev) | indent 4 }}
 ---
