@@ -91,7 +91,7 @@ spec:
     spec:
       containers:
         - name: configserver
-          image: "springcloud/spring-cloud-kubernetes-configserver:3.1.4-SNAPSHOT"
+          image: "hyness/spring-cloud-config-server:latest"
           imagePullPolicy: IfNotPresent
           env:
             - name: SPRING_PROFILES_ACTIVE

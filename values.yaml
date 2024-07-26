@@ -91,8 +91,8 @@ configserver:
   enabled: true
   replicaCount: 1
   image:
-    repository: springcloud/spring-cloud-kubernetes-configserver
-    tag: 3.1.4-SNAPSHOT
+    repository: hyness/spring-cloud-config-server
+    tag: latest
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -100,9 +100,6 @@ configserver:
   env:
     SPRING_PROFILES_ACTIVE: "dev"
   configFiles:
-    application:
-      server.port: "8888"
-      spring.profiles.active: "native"
-      spring.cloud.config.server.native.search-locations: "file:/config-repo"
-    applicationDev:
-      app.name: "hello from configserver"
+    application: "./config/application.yml"
+    applicationDev: "./config/application-dev.yml"
+    

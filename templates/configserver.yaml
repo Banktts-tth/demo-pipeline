@@ -7,14 +7,10 @@ metadata:
   labels:
     app: {{ .Release.Name }}-configserver
 data:
-  application.properties: |
-    {{- range $key, $value := .Values.configserver.configFiles.application }}
-    {{ $key }}={{ $value }}
-    {{- end }}
-  application-dev.properties: |
-    {{- range $key, $value := .Values.configserver.configFiles.applicationDev }}
-    {{ $key }}={{ $value }}
-    {{- end }}
+  application.yml: |
+    {{ (.Files.Get .Values.configserver.configFiles.application) | indent 4 }}
+  application-dev.yml: |
+    {{ (.Files.Get .Values.configserver.configFiles.applicationDev) | indent 4 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
