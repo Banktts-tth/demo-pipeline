@@ -1,7 +1,2 @@
-spring:
-  application:
-    name: configserver
-  profiles:
-    active: dev
 app:
   name: "hello from configserver"
