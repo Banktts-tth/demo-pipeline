@@ -86,3 +86,18 @@ affinity: {}
 app:
   name: DemoApp
   version: 1.0.0
+
+configserver:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: springcloud/spring-cloud-kubernetes-configserver
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8888
+  env:
+    SPRING_PROFILES_ACTIVE: "dev"
+  configFiles:
+    applicationDev: "config/application-dev.yml"
