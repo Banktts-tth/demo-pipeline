@@ -49,7 +49,7 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: demopipeline-demo-pipeline.banktth-dev.svc.cluster.local
+    - host: localhost
       paths:
         - path: /
           pathType: ImplementationSpecific
@@ -101,3 +101,4 @@ configserver:
     SPRING_PROFILES_ACTIVE: "dev"
   configFiles:
     applicationDev: "config/application-dev.yml"
+    applicationDefault: "config/application.yml"
