@@ -1,22 +1,36 @@
+{{- if .Values.configserver.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configserver-config
+  labels:
+    app: {{ .Release.Name }}-configserver
+data:
+  application.yml: |
+    {{ (.Files.Get .Values.configserver.configFiles.applicationDefault) | indent 4 }}
+  application-dev.yml: |
+    {{ (.Files.Get .Values.configserver.configFiles.applicationDev) | indent 4 }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "configserver.fullname" . }}
+  name: {{ .Release.Name }}-configserver
+  labels:
+    app: {{ .Release.Name }}-configserver
 spec:
   replicas: {{ .Values.configserver.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "configserver.name" . }}
-      release: {{ .Release.Name }}
+      app: {{ .Release.Name }}-configserver
   template:
     metadata:
       labels:
-        app: {{ include "configserver.name" . }}
-        release: {{ .Release.Name }}
+        app: {{ .Release.Name }}-configserver
     spec:
       containers:
-        - name: {{ include "configserver.name" . }}
-          image: "{{ .Values.configserver.image.repository }}:{{ .Values.configserver.image.tag }}"
+        - name: configserver
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.configserver.image.pullPolicy }}
           env:
             - name: SPRING_PROFILES_ACTIVE
@@ -24,32 +38,27 @@ spec:
           ports:
             - containerPort: {{ .Values.configserver.service.port }}
           volumeMounts:
-            - name: application-dev-yaml
-              mountPath: /config/application-dev.yml
-              subPath: application-dev.yml
-            - name: application-yaml
-              mountPath: /config/application.yml
-              subPath: application.yml
+            - name: config-volume
+              mountPath: /config
+              readOnly: true
       volumes:
-        - name: application-dev-yaml
+        - name: config-volume
           configMap:
-            name: application-dev-configmap
-        - name: application-yaml
-          configMap:
-            name: application-configmap
+            name: {{ .Release.Name }}-configserver-config
 ---
 apiVersion: v1
-kind: ConfigMap
+kind: Service
 metadata:
-  name: application-dev-configmap
-data:
-  application-dev.yml: |
-{{ .Files.Get .Values.configserver.configFiles.applicationDev | indent 4 }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: application-configmap
-data:
-  application.yml: |
-{{ .Files.Get .Values.configserver.configFiles.applicationDefault | indent 4 }}
+  name: {{ .Release.Name }}-configserver
+  labels:
+    app: {{ .Release.Name }}-configserver
+spec:
+  type: {{ .Values.configserver.service.type }}
+  ports:
+    - port: {{ .Values.configserver.service.port }}
+      targetPort: 8888
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ .Release.Name }}-configserver
+{{- end }}
