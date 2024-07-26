@@ -100,6 +100,6 @@ configserver:
   env:
     SPRING_PROFILES_ACTIVE: "dev"
   configFiles:
-    application: "config/application.yaml"
-    applicationDev: "config/application-dev.yaml"
+    application: "./config/application.yml"
+    applicationDev: "./config/application-dev.yml"
     
