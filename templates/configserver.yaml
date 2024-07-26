@@ -9,8 +9,6 @@ metadata:
 data:
   application-dev.yml: |
     {{ (.Files.Get .Values.configserver.configFiles.applicationDev) | indent 4 }}
-  application-prod.yml: |
-    {{ (.Files.Get .Values.configserver.configFiles.applicationProd) | indent 4 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -30,7 +28,7 @@ spec:
     spec:
       containers:
         - name: configserver
-          image: "{{ .Values.configserver.image.repository }}:{{ .Values.configserver.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.configserver.image.pullPolicy }}
           env:
             - name: SPRING_PROFILES_ACTIVE
