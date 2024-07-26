@@ -1,1 +1,64 @@
-demopipeline-configserver
+{{- if .Values.configserver.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configserver-config
+  labels:
+    app: {{ .Release.Name }}-configserver
+data:
+  application.yml: |
+    {{ (.Files.Get .Values.configserver.configFiles.application) | indent 4 }}
+  application-dev.yml: |
+    {{ (.Files.Get .Values.configserver.configFiles.applicationDev) | indent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-configserver
+  labels:
+    app: {{ .Release.Name }}-configserver
+spec:
+  replicas: {{ .Values.configserver.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-configserver
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-configserver
+    spec:
+      containers:
+        - name: configserver
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.configserver.image.pullPolicy }}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "{{ .Values.configserver.env.SPRING_PROFILES_ACTIVE }}"
+          ports:
+            - containerPort: {{ .Values.configserver.service.port }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ .Release.Name }}-configserver-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-configserver
+  labels:
+    app: {{ .Release.Name }}-configserver
+spec:
+  type: {{ .Values.configserver.service.type }}
+  ports:
+    - port: {{ .Values.configserver.service.port }}
+      targetPort: 8888
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ .Release.Name }}-configserver
+{{- end }}
