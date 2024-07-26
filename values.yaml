@@ -92,7 +92,7 @@ configserver:
   replicaCount: 1
   image:
     repository: springcloud/spring-cloud-kubernetes-configserver
-    tag: latest
+    tag: 3.1.4-SNAPSHOT
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
