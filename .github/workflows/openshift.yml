@@ -43,6 +43,10 @@ jobs:
         oc delete pod -l app.kubernetes.io/name=demopipeline-configserver --ignore-not-found
         oc delete deployment demopipeline-configserver --ignore-not-found
         oc delete service demopipeline-configserver --ignore-not-found
+    - name: Apply RBAC Configuration
+      run: |
+          oc apply -f templates/role.yaml
+          oc apply -f templates/rolebinding.yaml
 
     - name: Generate Kubernetes Manifests with Helm
       run: |
