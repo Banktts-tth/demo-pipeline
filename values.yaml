@@ -100,6 +100,9 @@ configserver:
   env:
     SPRING_PROFILES_ACTIVE: "dev"
   configFiles:
-    application: "./application.yml"
-    applicationDev: "./application-dev.yml"
-    
+    application:
+      server.port: "8888"
+      spring.profiles.active: "native"
+      spring.cloud.config.server.native.search-locations: "file:/config-repo"
+    applicationDev:
+      app.name: "hello from configserver"

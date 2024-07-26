@@ -21,6 +21,35 @@ data:
     app.name=DemoApp
     app.version=1.0.0
 ---
+# Source: demo-pipeline/templates/configserver.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demopipeline-configserver-config
+  labels:
+    app: demopipeline-configserver
+data:
+  application.yml: |
+        
+  application-dev.yml: |
+---
+# Source: demo-pipeline/templates/configserver.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: demopipeline-configserver
+  labels:
+    app: demopipeline-configserver
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8888
+      targetPort: 8888
+      protocol: TCP
+      name: http
+  selector:
+    app: demopipeline-configserver
+---
 # Source: demo-pipeline/templates/service.yaml
 apiVersion: v1
 kind: Service
@@ -43,6 +72,41 @@ spec:
     app.kubernetes.io/name: demo-pipeline
     app.kubernetes.io/instance: demopipeline
 ---
+# Source: demo-pipeline/templates/configserver.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demopipeline-configserver
+  labels:
+    app: demopipeline-configserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demopipeline-configserver
+  template:
+    metadata:
+      labels:
+        app: demopipeline-configserver
+    spec:
+      containers:
+        - name: configserver
+          image: "springcloud/spring-cloud-kubernetes-configserver:3.1.4-SNAPSHOT"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
+          ports:
+            - containerPort: 8888
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: demopipeline-configserver-config
+---
 # Source: demo-pipeline/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -55,7 +119,7 @@ metadata:
     app.kubernetes.io/version: "latest"
     app.kubernetes.io/managed-by: Helm
 spec:
-  replicas: 10
+  replicas: 5
   selector:
     matchLabels:
       app.kubernetes.io/name: demo-pipeline
@@ -74,26 +138,14 @@ spec:
           securityContext:
             {}
           image: "docker.io/bankttstth/demo-spring:latest"
-          arch: amd64
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
           volumeMounts:
-            - name: config-volume
+            - name: my-config
               mountPath: /config
-          env:
-            - name: APP_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: demopipeline-config
-                  key: app.name
-            - name: APP_VERSION
-              valueFrom:
-                configMapKeyRef:
-                  name: demopipeline-config
-                  key: app.version
           livenessProbe:
             httpGet:
               path: /api/hello
@@ -108,8 +160,8 @@ spec:
             periodSeconds: 10
           resources:
             {}
-    volumes:
-        - name: config-volume
+      volumes:
+        - name: my-config
           configMap:
             name: demopipeline-config
 ---
@@ -126,7 +178,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
 spec:
   rules:
-    - host: "demopipeline-demo-pipeline.banktth-dev.svc.cluster.local"
+    - host: "localhost"
       http:
         paths:
           - path: /
