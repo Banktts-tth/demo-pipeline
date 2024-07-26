@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
         - name: configserver
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.configserver.image.repository }}:{{ .Values.configserver.image.tag }}"
           imagePullPolicy: {{ .Values.configserver.image.pullPolicy }}
           env:
             - name: SPRING_PROFILES_ACTIVE
